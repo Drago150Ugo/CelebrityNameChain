@@ -1,3 +1,8 @@
+# Group Members:
+Muhammad Usman | @AbuTalha63
+Ramanpreet Singh | @Ramanpreet8
+
+
 # Celebrity Name Chain — Starter
 
 Boilerplate for the **Celebrity Name Chain** full-stack group project
