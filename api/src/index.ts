@@ -1,9 +1,8 @@
 import "dotenv/config";
 import express from "express";
-import prisma from "./db.js";
-const cors = require("cors");
+import { prisma } from "./db.js";
+
 const app = express();
-app.use(cors());
 app.use(express.json());
 
 const PORT = process.env.PORT ?? 3000;
@@ -14,7 +13,7 @@ app.get("/health", (_req, res) => {
 });
 
 // TODO: implement the game routes (see the project spec):
-//   POST /games          { roomCode, celebrity }          -> start a game
+//   POST /games          { roomCode, celebrity }          -> start a game COMPLETED
 //   GET  /games/:roomCode                                 -> most recent celebrity name
 //   POST /answers        { roomCode, username, answer }   -> submit an answer
 //
