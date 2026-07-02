@@ -3,6 +3,7 @@ import { IonApp, IonRouterOutlet, setupIonicReact } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import Home from './pages/Home';
 import Lobby from './pages/Lobby';
+import Guess from './pages/guess';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -46,6 +47,9 @@ const App: React.FC = () => (
         </Route>
         <Route exact path="/lobby">
           <Lobby />
+        </Route>
+        <Route exact path="/guess">
+          <Guess/>
         </Route>
         <Route exact path="/">
           <Redirect to="/home" />
