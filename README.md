@@ -1,6 +1,8 @@
 # Group Members:
 Muhammad Usman | @AbuTalha63
 Ramanpreet Singh | @Ramanpreet8
+Zara Audri | @zaraaudri
+Ugochukwu Emenawu | @Drago150Ugo
 
 
 # Celebrity Name Chain — Starter
