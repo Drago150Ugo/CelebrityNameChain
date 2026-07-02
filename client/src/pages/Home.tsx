@@ -1,4 +1,4 @@
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButton } from '@ionic/react';
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButton, IonText, IonList, IonLabel, IonItem } from '@ionic/react';
 import "./Home.css";
 const Home: React.FC = () => {
   return (
@@ -15,9 +15,29 @@ const Home: React.FC = () => {
       <IonButton 
       expand="block"
       size="large"    
+      color="danger"
       routerLink="/Lobby">    
-        SET LOBBY
+        LOBBY
       </IonButton>
+      <IonText>
+    <h3>How To Play</h3>
+      </IonText>
+              <IonList>
+            <IonItem lines="none">
+              <IonLabel>Start with a celebrity.</IonLabel>
+            </IonItem>
+
+            <IonItem lines="none">
+              <IonLabel>
+                Name another celebrity connected by the last name.
+              </IonLabel>
+            </IonItem>
+
+            <IonItem lines="none">
+              <IonLabel>Don't repeat names.</IonLabel>
+            </IonItem>
+          </IonList>
+
       </div>
       </IonContent>
     </IonPage>
