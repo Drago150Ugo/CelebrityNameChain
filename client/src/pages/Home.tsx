@@ -1,5 +1,5 @@
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButton } from '@ionic/react';
-
+import "./Home.css";
 const Home: React.FC = () => {
   return (
     <IonPage>
@@ -12,7 +12,10 @@ const Home: React.FC = () => {
       </IonHeader>
       <IonContent fullscreen>
       <div className="home-screen">
-      <IonButton routerLink="/set-lobby">    
+      <IonButton 
+      expand="block"
+      size="large"    
+      routerLink="/Lobby">    
         SET LOBBY
       </IonButton>
       </div>
