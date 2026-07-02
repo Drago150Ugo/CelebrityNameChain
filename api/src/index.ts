@@ -20,8 +20,12 @@ app.get("/health", (_req, res) => {
 // client into src/generated/prisma), then wire it up with the pg adapter.
 // See this API's README ("Using Prisma in code") for the exact db.ts snippet.
 
-app.get(`/games`, (req, res) => {
-    //TODO: implement business logic here
+app.post(`/games`, (req, res) => {
+    const {roomCode, celebrity} = req.body;
+
+    if (typeof roomCode !== "string" || roomCode.trim() === "") {
+        return res.status(400).json({error: "Missing roomcode"});
+    }
 });
 
 app.listen(PORT, () => {

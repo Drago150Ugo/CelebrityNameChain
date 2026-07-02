@@ -12,7 +12,20 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
-// TODO: add your models below (for example, a Game and its Answers).
+model Game {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  roomCode  String   @unique
+  answers   Answer[]
+  createdAt DateTime @default(now())
+}
+
+model Answer {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  text      String
+  username  String?
+  gameId    String   @db.Uuid
+  game      Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
