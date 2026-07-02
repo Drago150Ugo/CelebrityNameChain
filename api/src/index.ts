@@ -1,5 +1,6 @@
 import "dotenv/config";
 import express from "express";
+import prisma from "./db.js";
 
 const app = express();
 app.use(express.json());
@@ -20,11 +21,36 @@ app.get("/health", (_req, res) => {
 // client into src/generated/prisma), then wire it up with the pg adapter.
 // See this API's README ("Using Prisma in code") for the exact db.ts snippet.
 
-app.post(`/games`, (req, res) => {
-    const {roomCode, celebrity} = req.body;
+app.post("/games", async (req, res, next) => {
+    try {
+        const { roomCode, celebrity } = req.body;
 
-    if (typeof roomCode !== "string" || roomCode.trim() === "") {
-        return res.status(400).json({error: "Missing roomcode"});
+        if (typeof roomCode !== "string" || roomCode.trim() === "") {
+            return res.status(400).json({ error: "Missing roomCode" });
+        }
+        if (typeof celebrity !== "string" || celebrity.trim() === "") {
+            return res.status(400).json({ error: "Missing celebrity" });
+        }
+
+        const game = await prisma.game.create({
+            data: {
+                roomCode: roomCode.trim().toUpperCase(),
+                answers: {
+                    create: [{ text: celebrity.trim(), username: null }],
+                },
+            },
+            include: { answers: true },
+        });
+
+        return res.status(201).json({
+            roomCode: game.roomCode,
+            mostRecent: game.answers[0].text,
+        });
+    } catch (err) {
+        if (err && typeof err === "object" && "code" in err && err.code === "P2002") {
+            return res.status(409).json({ error: "Room code already in use" });
+        }
+        next(err);
     }
 });
 
