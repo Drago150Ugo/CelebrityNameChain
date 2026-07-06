@@ -9,6 +9,21 @@ app.use(express.json());
 
 const PORT = process.env.PORT ?? 3000;
 
+const parseNameParts = (fullName: string) => {
+    const normalized = fullName.trim().replace(/\s+/g, " ");
+    const parts = normalized.split(" ").filter(Boolean);
+
+    if (parts.length < 2) {
+        return null;
+    }
+
+    return {
+        firstName: parts[0],
+        lastName: parts[parts.length - 1],
+        normalized,
+    };
+};
+
 // Health check — confirms the server is running.
 app.get("/health", (_req, res) => {
     res.json({ ok: true });
@@ -82,20 +97,21 @@ app.get("/games/:roomCode", async (req, res, next) => {
 // start a new game
 app.post("/games", async (req, res, next) => {
     try {
-        const { roomCode, celebrity } = req.body;
+        const roomCode = req.body.roomCode?.trim().toUpperCase();
+        const celebrity = req.body.celebrity?.trim();
 
-        if (typeof roomCode !== "string" || roomCode.trim() === "") {
+        if (!roomCode) {
             return res.status(400).json({ error: "Missing roomCode" });
         }
-        if (typeof celebrity !== "string" || celebrity.trim() === "") {
+        if (!celebrity) {
             return res.status(400).json({ error: "Missing celebrity" });
         }
 
         const game = await prisma.game.create({
             data: {
-                roomCode: roomCode.trim().toUpperCase(),
+                roomCode,
                 answers: {
-                    create: [{ text: celebrity.trim(), username: null }],
+                    create: [{ text: celebrity, username: null }],
                 },
             },
             include: { answers: true },
@@ -103,7 +119,7 @@ app.post("/games", async (req, res, next) => {
 
         return res.status(201).json({
             roomCode: game.roomCode,
-            mostRecent: game.answers[0].text,
+            mostRecent: game.answers[0]?.text ?? null,
         });
     } catch (err) {
         if (err && typeof err === "object" && "code" in err && err.code === "P2002") {
@@ -113,41 +129,79 @@ app.post("/games", async (req, res, next) => {
     }
 });
 
-// get most recent name in chain
-app.get("/games/:roomCode", async (req, res, next) => {
-
-    try {
-        const { roomCode } = req.params.roomCode;
-        const game = await prisma.game.create({
-            data://work in progress, committed only for save of changes
-        })
-        
-
-
-
-    } catch (err) {
-
-    }
-});
-
-
 app.post("/answers", async (req, res, next) => {
     try {
-
-        const {roomCode, celebrity, username}
+        const { roomCode, username, answer } = req.body;
 
         if (typeof roomCode !== "string" || roomCode.trim() === "") {
             return res.status(400).json({ error: "Missing roomCode" });
         }
-        if (typeof celebrity !== "string" || celebrity.trim() === "") {
-            return res.status(400).json({ error: "Missing celebrity" });
-        }
         if (typeof username !== "string" || username.trim() === "") {
             return res.status(400).json({ error: "Missing username" });
         }
+        if (typeof answer !== "string" || answer.trim() === "") {
+            return res.status(400).json({ error: "Missing answer" });
+        }
 
-        
+        const normalizedRoomCode = roomCode.trim().toUpperCase();
+        const normalizedUsername = username.trim();
+        const parsedAnswer = parseNameParts(answer);
 
+        if (!parsedAnswer) {
+            return res.status(400).json({ error: "Answer must include a first and last name" });
+        }
+
+        const game = await prisma.game.findUnique({
+            where: { roomCode: normalizedRoomCode },
+            include: {
+                answers: {
+                    orderBy: { createdAt: "desc" },
+                    take: 1,
+                },
+            },
+        });
+
+        if (!game) {
+            return res.status(404).json({ error: "Game not found" });
+        }
+
+        const previousAnswer = game.answers[0];
+
+        if (!previousAnswer) {
+            return res.status(400).json({ error: "Game has no previous answer" });
+        }
+
+        if (previousAnswer.username && previousAnswer.username === normalizedUsername) {
+            return res.status(409).json({ error: "You answered most recently; wait for someone else" });
+        }
+
+        const previousParts = parseNameParts(previousAnswer.text);
+
+        if (!previousParts) {
+            return res.status(400).json({ error: "Previous answer is invalid" });
+        }
+
+        const expectedInitial = previousParts.lastName[0]?.toLowerCase();
+        const submittedInitial = parsedAnswer.firstName[0]?.toLowerCase();
+
+        if (submittedInitial !== expectedInitial) {
+            return res.status(400).json({ error: `Name must start with ${expectedInitial?.toUpperCase()}` });
+        }
+
+        const createdAnswer = await prisma.answer.create({
+            data: {
+                text: parsedAnswer.normalized,
+                username: normalizedUsername,
+                gameId: game.id,
+            },
+        });
+
+        return res.status(201).json({
+            accepted: true,
+            mostRecent: createdAnswer.text,
+        });
+    } catch (err) {
+        next(err);
     }
 });
 
