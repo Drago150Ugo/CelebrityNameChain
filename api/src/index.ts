@@ -1,7 +1,8 @@
 import "dotenv/config";
 import express from "express";
+import CORS from "cors";
 import { prisma } from "./db.js";
-const CORS = require("cors");
+
 const app = express();
 app.use(CORS({ origin: "*" }));
 app.use(express.json());
@@ -22,6 +23,7 @@ app.get("/health", (_req, res) => {
 // client into src/generated/prisma), then wire it up with the pg adapter.
 // See this API's README ("Using Prisma in code") for the exact db.ts snippet.
 
+// start a new game
 app.post("/games", async (req, res, next) => {
     try {
         const { roomCode, celebrity } = req.body;
@@ -54,6 +56,27 @@ app.post("/games", async (req, res, next) => {
         next(err);
     }
 });
+
+// get most recent name in chain
+app.get("/games/:roomCode", async (req, res, next) => {
+
+    try {
+        const { roomCode } = req.params.roomCode;
+        const game = await prisma.game.create({
+            data://work in progress, committed only for save of changes
+        })
+        
+
+
+
+    } catch (err) {
+
+    }
+});
+
+
+
+
 
 app.listen(PORT, () => {
     console.log(`API listening on http://localhost:${PORT}`);
