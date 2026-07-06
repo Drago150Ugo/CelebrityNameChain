@@ -75,7 +75,25 @@ app.get("/games/:roomCode", async (req, res, next) => {
 });
 
 
+app.post("/answers", async (req, res, next) => {
+    try {
 
+        const {roomCode, celebrity, username}
+
+        if (typeof roomCode !== "string" || roomCode.trim() === "") {
+            return res.status(400).json({ error: "Missing roomCode" });
+        }
+        if (typeof celebrity !== "string" || celebrity.trim() === "") {
+            return res.status(400).json({ error: "Missing celebrity" });
+        }
+        if (typeof username !== "string" || username.trim() === "") {
+            return res.status(400).json({ error: "Missing username" });
+        }
+
+        
+
+    }
+});
 
 
 app.listen(PORT, () => {
