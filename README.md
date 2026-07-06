@@ -24,6 +24,21 @@ for the game rules, routes, and requirements.
 Click **"Use this template"** on GitHub (not Fork). **One** teammate creates
 the repo, then **adds the others as collaborators**. One team = one repo.
 
+## AI assistance disclosure
+
+This project was developed with help from AI tools, especially GitHub Copilot,
+while we were building the backend routes and troubleshooting the initial setup.
+We used AI to:
+
+- draft and refine the Express and Prisma route structure for the game API
+- help debug TypeScript and database connection issues
+- improve the clarity of the project documentation and README text
+
+We reviewed each suggestion, tested the changes, and adapted them to fit the
+project requirements. The final design and implementation decisions were made by
+our team, with AI used as a support tool rather than a replacement for our own
+judgment.
+
 ## Prerequisites
 
 - **Node 22+** and **Yarn 4** (via Corepack: `corepack enable`)
