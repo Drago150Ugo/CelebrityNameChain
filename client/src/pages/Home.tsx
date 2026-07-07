@@ -10,7 +10,7 @@ const Home: React.FC = () => {
     const response = await fetch("http://localhost:3000/health");
     const data = await response.json();
     setResult(JSON.stringify(data));
-};
+  };
   return (
     <IonPage>
       <IonHeader>
@@ -25,7 +25,7 @@ const Home: React.FC = () => {
           <p>{result}</p>
         </IonButton>
         <div></div>
-      
+
       </IonContent>
     </IonPage>
   );

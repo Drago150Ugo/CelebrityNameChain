@@ -10,7 +10,7 @@ const PORT = process.env.PORT ?? 3000;
 
 // Health check — confirms the server is running.
 app.get("/health", (_req, res) => {
-  res.json({ ok: true });
+    res.json({ ok: true });
 });
 
 // TODO: implement the game routes (see the project spec):
@@ -23,5 +23,5 @@ app.get("/health", (_req, res) => {
 // See this API's README ("Using Prisma in code") for the exact db.ts snippet.
 
 app.listen(PORT, () => {
-  console.log(`API listening on http://localhost:${PORT}`);
+    console.log(`API listening on http://localhost:${PORT}`);
 });
