@@ -48,7 +48,7 @@ const App: React.FC = () => (
         <Route exact path="/lobby">
           <Lobby />
         </Route>
-        <Route exact path="/guess">
+        <Route exact path="/guess/:roomCode">
           <Guess/>
         </Route>
         <Route exact path="/">
