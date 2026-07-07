@@ -7,7 +7,7 @@ const app = express();
 app.use(CORS({ origin: "*" }));
 app.use(express.json());
 
-const PORT = process.env.PORT ?? 3000;
+const PORT = process.env.PORT ?? 4000;
 
 const parseNameParts = (fullName: string) => {
     const normalized = fullName.trim().replace(/\s+/g, " ");
