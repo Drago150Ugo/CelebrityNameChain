@@ -1,5 +1,5 @@
 import "dotenv/config";
-import express from "express";
+import express, { type NextFunction, type Request, type Response } from "express";
 import CORS from "cors";
 import { prisma } from "./db.js";
 
@@ -8,6 +8,41 @@ app.use(CORS({ origin: "*" }));
 app.use(express.json());
 
 const PORT = process.env.PORT ?? 4000;
+
+type HttpError = Error & { status: number };
+type RequestBody = Record<string, unknown>;
+
+const createHttpError = (status: number, message: string): HttpError => {
+    const error = new Error(message) as HttpError;
+    error.status = status;
+    return error;
+};
+
+const validateGameInput = (body: unknown, requiredFields: Array<"roomCode" | "username" | "answer" | "celebrity">) => {
+    if (!body || typeof body !== "object" || Array.isArray(body)) {
+        throw createHttpError(400, "Invalid request body");
+    }
+
+    const payload = body as RequestBody;
+    const validated: Record<string, string> = {};
+
+    for (const field of requiredFields) {
+        const value = payload[field];
+
+        if (typeof value !== "string") {
+            throw createHttpError(400, `Missing ${field}`);
+        }
+
+        const trimmed = value.trim();
+        if (!trimmed) {
+            throw createHttpError(400, `Missing ${field}`);
+        }
+
+        validated[field] = field === "roomCode" ? trimmed.toUpperCase() : trimmed;
+    }
+
+    return validated;
+};
 
 const parseNameParts = (fullName: string) => {
     const normalized = fullName.trim().replace(/\s+/g, " ");
@@ -28,15 +63,6 @@ const parseNameParts = (fullName: string) => {
 app.get("/health", (_req, res) => {
     res.json({ ok: true });
 });
-
-// TODO: implement the game routes (see the project spec):
-//   POST /games          { roomCode, celebrity }          -> start a game COMPLETED
-//   GET  /games/:roomCode                                 -> most recent celebrity name
-//   POST /answers        { roomCode, username, answer }   -> submit an answer
-//
-// To talk to the database, run `yarn prisma:migrate` first (generates the
-// client into src/generated/prisma), then wire it up with the pg adapter.
-// See this API's README ("Using Prisma in code") for the exact db.ts snippet.
 
 // list all games with their most recent celebrity name
 app.get("/games", async (_req, res, next) => {
@@ -68,7 +94,7 @@ app.get("/games/:roomCode", async (req, res, next) => {
         const roomCode = req.params.roomCode?.trim().toUpperCase();
 
         if (!roomCode) {
-            return res.status(400).json({ error: "Missing roomCode" });
+            throw createHttpError(400, "Missing roomCode");
         }
 
         const game = await prisma.game.findUnique({
@@ -82,7 +108,7 @@ app.get("/games/:roomCode", async (req, res, next) => {
         });
 
         if (!game) {
-            return res.status(404).json({ error: "Game not found" });
+            throw createHttpError(404, "Game not found");
         }
 
         return res.status(200).json({
@@ -97,15 +123,7 @@ app.get("/games/:roomCode", async (req, res, next) => {
 // start a new game
 app.post("/games", async (req, res, next) => {
     try {
-        const roomCode = req.body.roomCode?.trim().toUpperCase();
-        const celebrity = req.body.celebrity?.trim();
-
-        if (!roomCode) {
-            return res.status(400).json({ error: "Missing roomCode" });
-        }
-        if (!celebrity) {
-            return res.status(400).json({ error: "Missing celebrity" });
-        }
+        const { roomCode, celebrity } = validateGameInput(req.body, ["roomCode", "celebrity"]);
 
         const game = await prisma.game.create({
             data: {
@@ -122,37 +140,21 @@ app.post("/games", async (req, res, next) => {
             mostRecent: game.answers[0]?.text ?? null,
         });
     } catch (err) {
-        if (err && typeof err === "object" && "code" in err && err.code === "P2002") {
-            return res.status(409).json({ error: "Room code already in use" });
-        }
         next(err);
     }
 });
 
 app.post("/answers", async (req, res, next) => {
     try {
-        const { roomCode, username, answer } = req.body;
-
-        if (typeof roomCode !== "string" || roomCode.trim() === "") {
-            return res.status(400).json({ error: "Missing roomCode" });
-        }
-        if (typeof username !== "string" || username.trim() === "") {
-            return res.status(400).json({ error: "Missing username" });
-        }
-        if (typeof answer !== "string" || answer.trim() === "") {
-            return res.status(400).json({ error: "Missing answer" });
-        }
-
-        const normalizedRoomCode = roomCode.trim().toUpperCase();
-        const normalizedUsername = username.trim();
+        const { roomCode, username, answer } = validateGameInput(req.body, ["roomCode", "username", "answer"]);
         const parsedAnswer = parseNameParts(answer);
 
         if (!parsedAnswer) {
-            return res.status(400).json({ error: "Answer must include a first and last name" });
+            throw createHttpError(400, "Answer must include a first and last name");
         }
 
         const game = await prisma.game.findUnique({
-            where: { roomCode: normalizedRoomCode },
+            where: { roomCode },
             include: {
                 answers: {
                     orderBy: { createdAt: "desc" },
@@ -162,36 +164,36 @@ app.post("/answers", async (req, res, next) => {
         });
 
         if (!game) {
-            return res.status(404).json({ error: "Game not found" });
+            throw createHttpError(404, "Game not found");
         }
 
         const previousAnswer = game.answers[0];
 
         if (!previousAnswer) {
-            return res.status(400).json({ error: "Game has no previous answer" });
+            throw createHttpError(400, "Game has no previous answer");
         }
 
-        if (previousAnswer.username && previousAnswer.username === normalizedUsername) {
-            return res.status(409).json({ error: "You answered most recently; wait for someone else" });
+        if (previousAnswer.username && previousAnswer.username === username) {
+            throw createHttpError(409, "You answered most recently; wait for someone else");
         }
 
         const previousParts = parseNameParts(previousAnswer.text);
 
         if (!previousParts) {
-            return res.status(400).json({ error: "Previous answer is invalid" });
+            throw createHttpError(400, "Previous answer is invalid");
         }
 
         const expectedInitial = previousParts.lastName[0]?.toLowerCase();
         const submittedInitial = parsedAnswer.firstName[0]?.toLowerCase();
 
         if (submittedInitial !== expectedInitial) {
-            return res.status(400).json({ error: `Name must start with ${expectedInitial?.toUpperCase()}` });
+            throw createHttpError(400, `Name must start with ${expectedInitial?.toUpperCase()}`);
         }
 
         const createdAnswer = await prisma.answer.create({
             data: {
                 text: parsedAnswer.normalized,
-                username: normalizedUsername,
+                username,
                 gameId: game.id,
             },
         });
@@ -205,6 +207,18 @@ app.post("/answers", async (req, res, next) => {
     }
 });
 
+app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
+    if (err && typeof err === "object" && "code" in err && (err as { code?: unknown }).code === "P2002") {
+        return res.status(409).json({ error: "Room code already in use" });
+    }
+
+    if (err instanceof Error && "status" in err && typeof (err as HttpError).status === "number") {
+        return res.status((err as HttpError).status).json({ error: err.message });
+    }
+
+    console.error(err);
+    return res.status(500).json({ error: "Internal server error" });
+});
 
 app.listen(PORT, () => {
     console.log(`API listening on http://localhost:${PORT}`);

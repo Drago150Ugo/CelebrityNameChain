@@ -33,6 +33,7 @@ We used AI to:
 - draft and refine the Express and Prisma route structure for the game API
 - help debug TypeScript and database connection issues
 - improve the clarity of the project documentation and README text
+- refactor repeated validation logic and centralize error handling for the API
 
 We reviewed each suggestion, tested the changes, and adapted them to fit the
 project requirements. The final design and implementation decisions were made by
