@@ -1,5 +1,5 @@
 import { IonButton, IonContent, IonHeader, IonInput, IonList, IonPage, IonTitle, IonToolbar } from '@ionic/react';
-import "./Home.css";
+import "./home.css";
 import {
   useForm,
   Controller,
