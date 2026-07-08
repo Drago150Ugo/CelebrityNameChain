@@ -7,7 +7,7 @@ const Home: React.FC = () => {
   const [result, setResult] = useState("");
 
   const getHealth = async () => {
-    const response = await fetch("http://localhost:3000/health");
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/health`);//import ensures env config standard across all machines
     const data = await response.json();
     setResult(JSON.stringify(data));
 };

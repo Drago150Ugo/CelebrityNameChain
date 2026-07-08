@@ -2,14 +2,12 @@ import "dotenv/config";
 import express, { type NextFunction, type Request, type Response } from "express";
 import CORS from "cors";
 import { prisma } from "./db.js";
-import cors from "cors";
 
 const app = express();
 app.use(CORS({ origin: "*" }));
 app.use(express.json());
-app.use(cors());
 
-const PORT = process.env.PORT ?? 4000;
+const PORT = process.env.PORT ?? 3000;
 
 type HttpError = Error & { status: number };
 type RequestBody = Record<string, unknown>;
@@ -67,6 +65,7 @@ app.get("/health", (_req, res) => {
 });
 
 // list all games with their most recent celebrity name
+// Note: does not return player count or presence
 app.get("/games", async (_req, res, next) => {
     try {
         const games = await prisma.game.findMany({
