@@ -22,9 +22,8 @@ const Home: React.FC = () => {
         <p>Hello, world!</p>
 
         <IonButton onClick={getHealth}>Health Route check
-          <p>{result}</p>
         </IonButton>
-        <div></div>
+        <div><p>{result}</p></div>
 
       </IonContent>
     </IonPage>
