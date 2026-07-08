@@ -9,25 +9,11 @@ interface LobbyForm {
   roomCode: string;
 }
 
-const fetchSavedName = async (): Promise<string> => {
-  return new Promise((resolve) => setTimeout(() => resolve('DevUser'), 1000));
-};
-
 const Lobby: React.FC = () => {
-  const { data: savedName } = useQuery({
-    queryKey: ['savedName'],
-    queryFn: fetchSavedName,
-  });
-
-  const { control, handleSubmit, reset } = useForm<LobbyForm>({
+ 
+  const { control, handleSubmit } = useForm<LobbyForm>({
     defaultValues: { username: '', roomCode: '' }
   });
-
-  useEffect(() => {
-    if (savedName) {
-      reset({ username: savedName, roomCode: '' });
-    }
-  }, [savedName, reset]);
 
   const onJoinRoom = (data: LobbyForm) => {
     console.log("Joining room with:", data);
