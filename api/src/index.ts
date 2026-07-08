@@ -2,10 +2,12 @@ import "dotenv/config";
 import express, { type NextFunction, type Request, type Response } from "express";
 import CORS from "cors";
 import { prisma } from "./db.js";
+import cors from "cors";
 
 const app = express();
 app.use(CORS({ origin: "*" }));
 app.use(express.json());
+app.use(cors());
 
 const PORT = process.env.PORT ?? 4000;
 
