@@ -1,8 +1,8 @@
 import { IonButton, IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonText, IonList, IonLabel, IonItem } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
-
-
 import "./home.css";
+
+
 const Home: React.FC = () => {
   const [result, setResult] = useState("");
 
@@ -50,10 +50,11 @@ const Home: React.FC = () => {
 
       </div>
 
-        <IonButton onClick={getHealth}>Health Route check
-          <p>{result}</p>
+        <IonButton 
+        onClick={getHealth}>
+          Health Route check
         </IonButton>
-        <div></div>
+        <div><p>{result}</p></div>
       
       </IonContent>
     </IonPage>

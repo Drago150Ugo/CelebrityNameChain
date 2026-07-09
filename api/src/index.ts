@@ -66,6 +66,7 @@ app.get("/health", (_req, res) => {
 
 // list all games with their most recent celebrity name
 // Note: does not return player count or presence
+// tan polling TODO
 app.get("/games", async (_req, res, next) => {
     try {
         const games = await prisma.game.findMany({

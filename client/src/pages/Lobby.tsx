@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { IonButton, IonContent, IonInput, IonList, IonPage, IonTitle } from '@ionic/react';
 import { useForm, Controller } from 'react-hook-form';
 import { useQuery } from '@tanstack/react-query';
-import "./Home.css";
+import "./home.css";
 
 interface LobbyForm {
   username: string;
