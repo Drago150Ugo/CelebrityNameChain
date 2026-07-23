@@ -7,10 +7,11 @@ import "./home.css";
 interface LobbyForm {
   username: string;
   roomCode: string;
+  celebrity: string
 }
 
 const Lobby: React.FC = () => {
- 
+
   const { control, handleSubmit } = useForm<LobbyForm>({
     defaultValues: { username: '', roomCode: '' }
   });
@@ -22,19 +23,22 @@ const Lobby: React.FC = () => {
   return (
     <IonPage>
       <IonContent fullscreen>
-        <IonTitle className="ion-text-center">Welcome To The Lobby</IonTitle>
-        
+        <IonTitle className="ion-text-center">
+          Welcome To The Lobby
+        </IonTitle>
+
         <form onSubmit={handleSubmit(onJoinRoom)}>
           <IonList>
-            {/*Name*/}
+            
+            {/* Name */}
             <Controller
               control={control}
               name="username"
               render={({ field }) => (
-                <IonInput 
-                  placeholder="Enter your name" 
-                  value={field.value} 
-                  onIonInput={e => field.onChange(e.detail.value)} 
+                <IonInput
+                  placeholder="Enter your name"
+                  value={field.value}
+                  onIonInput={e => field.onChange(e.detail.value)}
                 />
               )}
             />
@@ -44,10 +48,10 @@ const Lobby: React.FC = () => {
               control={control}
               name="roomCode"
               render={({ field }) => (
-                <IonInput 
-                  placeholder="Enter room code" 
-                  value={field.value} 
-                  onIonInput={e => field.onChange(e.detail.value)} 
+                <IonInput
+                  placeholder="Enter room code"
+                  value={field.value}
+                  onIonInput={e => field.onChange(e.detail.value)}
                 />
               )}
             />
@@ -55,10 +59,10 @@ const Lobby: React.FC = () => {
             <IonButton type="submit" color="danger" expand="block">
               Join Room
             </IonButton>
-            
+
             <IonButton color="danger" expand="block" fill="outline">
               Create Room
-            </IonButton>  
+            </IonButton>
           </IonList>
         </form>
       </IonContent>
